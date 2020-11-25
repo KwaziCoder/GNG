@@ -36,7 +36,7 @@ int getTry() {
 		{
 			std::cin.clear(); 
 			std::cin.ignore(32767, '\n'); 
-			std::cout << "You neew to enter an integer!";
+			std::cout << "You must enter an integer!";
 		}
 		else
 		{
@@ -59,15 +59,46 @@ Result checkAnswer(int randNum, int guess)
 }
 
 
-bool StartNewOrExit(Result result)
+
+bool checkRecord(int score, int record)
+{
+	return score > record;
+}
+
+
+void congratulateWithNewRecord(bool newRecord, int record)
+{
+	if (newRecord)
+	{
+		std::cout << "Congratulations! You set up a new record!" << std::endl;
+	} 
+	else
+	{
+		std::cout << "Your best result : " << record << std::endl;
+	}
+}
+
+
+void printResult(Result result, int score, int record)
 {
 	if (result == Result::WIN)
-		std::cout << "Correct! You win!" << std::endl
-		<< "Would you like to play again? (Y/N)  ";
-	else 
-		std::cout << "Sorry, you lose!" << std::endl
-		<< "Would you like to play again? (Y/N)  ";
-	
+		std::cout << "Correct! You win! Your score: " << score << std::endl;
+	else
+	{
+		std::cout << "Sorry, you lose! Your score: " << score << std::endl;
+		congratulateWithNewRecord(checkRecord(score, record), record);
+	}
+
+	std::cout << "Would you like to play again? (Y/N)  ";
+
+}
+
+
+
+bool StartNewOrExit(Result result, int score, int record)
+{
+	printResult(result, score, record);
+
 	char answer;
 
 	while (true) {
@@ -94,9 +125,8 @@ bool StartNewOrExit(Result result)
 			std:: cout << "Would you like to play again? (Y/N)  ";
 		
 	}
-		
-	
-}
+			
+}	
 
 
 int main()
@@ -104,15 +134,19 @@ int main()
 	using namespace std;
 
 	cout << "Let's play a game!" << endl;
-	cout << "I'm thinking about a number... " << std::endl
-		<< "You have 7 tries to tell me what this number is." << std::endl;
+	cout << "I'm thinking about a number... " << std::endl << 
+		"You have 7 tries to tell me what this number is." << std::endl;
+
 	int randNum = getRandomNumber();
 	
-	cout << "What is your first thought?" << endl
-		<< "Enter a number: ";
+	cout << "What is your first thought?" << endl << 
+		"Enter a number: ";
 
 
 	int tries{ 7 };
+	int score = 0;
+	int record = 0;
+
 	bool newGame = false;
 	bool endOfGame = false;
 
@@ -122,7 +156,9 @@ int main()
 		if (tries == 0)
 		{
 			endOfGame = true;
-			newGame = StartNewOrExit(Result::FAIL);
+			newGame = StartNewOrExit(Result::FAIL, score, record);
+			record = (checkRecord(score, record)) ? score : record;
+			score = 0;
 		}
 		else
 		{
@@ -132,8 +168,9 @@ int main()
 			switch (result)
 			{
 			case Result::EXACT:
+				++score;
 				endOfGame = true;
-				newGame = StartNewOrExit(Result::WIN);
+				newGame = StartNewOrExit(Result::WIN, score, record);
 				break;
 			case Result::TOO_HIGH:
 				cout << "Your guess is too high." << endl << "Try again" << endl;
